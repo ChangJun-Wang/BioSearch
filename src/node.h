@@ -31,7 +31,9 @@ public:
 private:
     int             _partCount[2];  // Cell number in partition A(0) and B(1)
     string          _name;          // Name of the net
-    vector<int>     _cellList;      // List of cells the net is connected to
+    vector<int>     _upEdge;      // List of cells the net is connected to
+    vector<int>     _downEdge;
+    vector<int>     _catEdge;
 };
 
 #endif  // NET_H
