@@ -9,29 +9,28 @@ class Node
 public:
     // constructor and destructor
     Node(string& name) :
-        _name(name) {
-        _partCount[0] = 0; _partCount[1] = 0;
-    }
+        _name(name) { }
     ~Node()  { }
 
     // basic access methods
-    string getName()           const { return _name; }
-    int getPartCount(int part) const { return _partCount[part]; }
+    string getName()             const { return _name; }
+    vector<int> getUpEdge( )     { return _upEdge; }
+    vector<int> getDownEdge( )   { return _downEdge; }
+    vector<int> getCatEdge( )    { return _catEdge; }
 
     // set functions
-    void setName(const string name) { _name = name; }
-    void setPartCount(int part, const int count) { _partCount[part] = count; }
 
     // modify methods
-    void addUpEdge(int part)     { ++_partCount[part]; }
-    void decPartCount(int part)     { --_partCount[part]; }
+    void addUpEdge(int edge)     { _upEdge.push_back(edge); }
+    void addDownEdge(int edge)   { _downEdge.push_back(edge); }
+    void addCatEdge(int edge)    { _catEdge.push_back(edge); }
 
 private:
-    int             _partCount[2];
     string          _name;
     vector<int>     _upEdge;
     vector<int>     _downEdge;
     vector<int>     _catEdge;
+    vector<int>     _label[5];
 };
 
 #endif  // NODE_H

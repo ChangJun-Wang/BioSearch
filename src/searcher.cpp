@@ -11,19 +11,19 @@
 #include "searcher.h"
 using namespace std;
 
-vector<string> split(inputline)
-{
-    temp    = ""
-    tmpList = []
-    for w in inputline:
-        if (w == " " or w == "\n"):
-            if temp != "":
-                tmpList.append(temp)
-            temp = ""
-        else:
-            temp += w
-    return tmpList
-}
+// vector<string> split(inputline)
+// {
+//     temp    = ""
+//     tmpList = []
+//     for w in inputline:
+//         if (w == " " or w == "\n"):
+//             if temp != "":
+//                 tmpList.append(temp)
+//             temp = ""
+//         else:
+//             temp += w
+//     return tmpList
+// }
 
 // 0.2
 // NET n1       c4486 c43922 ;
@@ -46,7 +46,7 @@ vector<string> split(inputline)
 // NET n18      c30258 c7823 c7822 c40180 ;
 // NET n19      c150415 c150414 c110040 c20900 c74376 ;
 
-void Seacher::parseInput(fstream& inFile)
+void Searcher::parseInput(fstream& inFile)
 {
     string str;
     cout << "parsing database......";
@@ -64,7 +64,7 @@ void Seacher::parseInput(fstream& inFile)
                     if (_nodeName2Id.count(nodeName) == 0) {
                         int nodeId = _nodeNum;
                         enzyme = nodeName;
-                        _nodeArray.push_back(new Node(nodeName, 0, nodeId));
+                        _nodeArray.push_back(new Node(nodeName));
                         _nodeName2Id[nodeName] = nodeId;
                         ++_nodeNum;
                     }
@@ -76,12 +76,12 @@ void Seacher::parseInput(fstream& inFile)
             edgeName = str;
             int edgeId = _edgeNum;
             bool is_pro = false;
-            _edgeArray.push_back(new Edge(edgeName));
+            _edgeArray.push_back(new Edge(edgeId));
             _edgeName2Id[edgeName] = edgeId;
 
             int enzId = _nodeName2Id[enzyme];
             _nodeArray[enzId]->addCatEdge(edgeId);
-            _edgeArray[edgeId]->addEnz(_nodeArray[enzId]);
+            _edgeArray[edgeId]->setEnz(enzId);
             while (inFile >> nodeName) {
                 if (nodeName == "\n")  break;
                 else if (nodeName == "=") is_pro = true;
@@ -89,7 +89,7 @@ void Seacher::parseInput(fstream& inFile)
                     // a newly seen node
                     if (_nodeName2Id.count(nodeName) == 0) {
                         int nodeId = _nodeNum;
-                        _nodeArray.push_back(new Node(nodeName, 0, nodeId));
+                        _nodeArray.push_back(new Node(nodeName));
                         _nodeName2Id[nodeName] = nodeId;
                         ++_nodeNum;
                     }
@@ -98,13 +98,13 @@ void Seacher::parseInput(fstream& inFile)
                     if (is_pro) {
                         int nodeId = _nodeName2Id[nodeName];
                         Node* node = _nodeArray[nodeId];
-                        _nodeArray[node]->addUpEdge(edgeId);
+                        _nodeArray[nodeId]->addUpEdge(edgeId);
                         _edgeArray[edgeId]->addPro(nodeId);
                     }
                     else {
                         int nodeId = _nodeName2Id[nodeName];
                         Node* node = _nodeArray[nodeId];
-                        _nodeArray[node]->addDownEdge(edgeId);
+                        _nodeArray[nodeId]->addDownEdge(edgeId);
                         _edgeArray[edgeId]->addRea(nodeId);
                     }
                 }
@@ -115,82 +115,71 @@ void Seacher::parseInput(fstream& inFile)
     return;
 }
 
-void Seacher::search()
+void Searcher::search()
 {
 }
 
 
 
 
-void Seacher::printSummary() const
+void Searcher::printSummary() const
 {
     cout << endl;
     cout << "==================== Summary ====================" << endl;
-    cout << " Cutsize: " << _cutSize << endl;
     cout << " Total node number: " << _nodeNum << endl;
     cout << " Total edge number:  " << _edgeNum << endl;
-    cout << " Node Number of partition A: " << _partSize[0] << endl;
-    cout << " Node Number of partition B: " << _partSize[1] << endl;
     cout << "=================================================" << endl;
     cout << endl;
     return;
 }
 
-void Seacher::reportNode() const
+void Searcher::report() const
 {
-    cout << "Number of edges: " << _edgeNum << endl;
     for (size_t i = 0, end_i = _edgeArray.size(); i < end_i; ++i) {
-        cout << setw(8) << _edgeArray[i]->getName() << ": ";
-        vector<int> nodeList = _edgeArray[i]->getNodeList();
+        cout << " Reaction " << _edgeArray[i]->getId() << ": ";
+        vector<int> nodeList = _edgeArray[i]->getRea();
         for (size_t j = 0, end_j = nodeList.size(); j < end_j; ++j) {
-            cout << setw(8) << _nodeArray[nodeList[j]]->getName() << " ";
+            cout << _nodeArray[nodeList[j]]->getName() << " ";
+        }
+        
+        cout << _nodeArray[_edgeArray[i]->getEnz()]->getName() << " ";
+        
+        nodeList = _edgeArray[i]->getPro();
+        for (size_t j = 0, end_j = nodeList.size(); j < end_j; ++j) {
+            cout << _nodeArray[nodeList[j]]->getName() << " ";
         }
         cout << endl;
     }
     return;
 }
 
-void Seacher::reportEdge() const
-{
-    cout << "Number of nodes: " << _nodeNum << endl;
-    for (size_t i = 0, end_i = _nodeArray.size(); i < end_i; ++i) {
-        cout << setw(8) << _nodeArray[i]->getName() << ": ";
-        vector<int> edgeList = _nodeArray[i]->getNetList();
-        for (size_t j = 0, end_j = edgeList.size(); j < end_j; ++j) {
-            cout << setw(8) << _edgeArray[edgeList[j]]->getName() << " ";
-        }
-        cout << endl;
-    }
-    return;
-}
-
-void Seacher::writeResult(fstream& outFile)
+void Searcher::writeResult(fstream& outFile)
 {
     stringstream buff;
-    buff << _cutSize;
-    outFile << "Cutsize = " << buff.str() << '\n';
-    buff.str("");
-    buff << _partSize[0];
-    outFile << "G1 " << buff.str() << '\n';
-    for (size_t i = 0, end = _nodeArray.size(); i < end; ++i) {
-        if (_nodeArray[i]->getPart() == 0) {
-            outFile << _nodeArray[i]->getName() << " ";
+    buff << _nodeNum;
+    outFile << "NodeNum = " << buff.str() << '\n';
+
+    for (size_t i = 0, end_i = _edgeArray.size(); i < end_i; ++i) {
+        outFile << ";\n";
+        outFile << " Reaction " << _edgeArray[i]->getId() << ": ";
+        vector<int> nodeList = _edgeArray[i]->getRea();
+        for (size_t j = 0, end_j = nodeList.size(); j < end_j; ++j) {
+            outFile << _nodeArray[nodeList[j]]->getName() << " ";
         }
-    }
-    outFile << ";\n";
-    buff.str("");
-    buff << _partSize[1];
-    outFile << "G2 " << buff.str() << '\n';
-    for (size_t i = 0, end = _nodeArray.size(); i < end; ++i) {
-        if (_nodeArray[i]->getPart() == 1) {
-            outFile << _nodeArray[i]->getName() << " ";
+        
+        outFile << _nodeArray[_edgeArray[i]->getEnz()]->getName() << " ";
+        
+        nodeList = _edgeArray[i]->getPro();
+        for (size_t j = 0, end_j = nodeList.size(); j < end_j; ++j) {
+            outFile << _nodeArray[nodeList[j]]->getName() << " ";
         }
+        outFile << endl;
     }
     outFile << ";\n";
     return;
 }
 
-void Seacher::clear()
+void Searcher::clear()
 {
     for (size_t i = 0, end = _nodeArray.size(); i < end; ++i) {
         delete _nodeArray[i];
