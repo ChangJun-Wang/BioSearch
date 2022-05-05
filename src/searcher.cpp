@@ -49,81 +49,63 @@ vector<string> split(inputline)
 void Seacher::parseInput(fstream& inFile)
 {
     string str;
-    cout << "parsing database......"
+    cout << "parsing database......";
 
-    // Set up whole circuit
+    // Set up whole graph
     while (inFile >> str) {
+        string enzyme = "";
         if (str == "RN") {
             string nodeName = "";
-            inFile >> edgeName;
-            int edgeId = _edgeNum;
-            _edgeArray.push_back(new Net(edgeName));
-            _edgeName2Id[edgeName] = edgeId;
+            inFile >> nodeName;
             while (inFile >> nodeName) {
-                if (nodeName == ";") {
-                    tmpNodeName = "";
-                    break;
-                }
+                if (nodeName == "\n") break;
                 else {
                     // a newly seen node
                     if (_nodeName2Id.count(nodeName) == 0) {
                         int nodeId = _nodeNum;
+                        enzyme = nodeName;
                         _nodeArray.push_back(new Node(nodeName, 0, nodeId));
                         _nodeName2Id[nodeName] = nodeId;
-                        _nodeArray[nodeId]->addNet(edgeId);
-                        _nodeArray[nodeId]->incPinNum();
-                        _edgeArray[edgeId]->addNode(nodeId);
                         ++_nodeNum;
-                        tmpNodeName = nodeName;
-                    }
-                    // an existed node
-                    else {
-                        if (nodeName != tmpNodeName) {
-                            assert(_nodeName2Id.count(nodeName) == 1);
-                            int nodeId = _nodeName2Id[nodeName];
-                            _nodeArray[nodeId]->addNet(edgeId);
-                            _nodeArray[nodeId]->incPinNum();
-                            _edgeArray[edgeId]->addNode(nodeId);
-                            tmpNodeName = nodeName;
-                        }
                     }
                 }
             }
-            ++_edgeNum;
         }
         else {
-            string edgeName, nodeName, tmpNodeName = "";
-            inFile >> edgeName;
+            string edgeName, nodeName = "";
+            edgeName = str;
             int edgeId = _edgeNum;
-            _edgeArray.push_back(new Net(edgeName));
+            bool is_pro = false;
+            _edgeArray.push_back(new Edge(edgeName));
             _edgeName2Id[edgeName] = edgeId;
+
+            int enzId = _nodeName2Id[enzyme];
+            _nodeArray[enzId]->addCatEdge(edgeId);
+            _edgeArray[edgeId]->addEnz(_nodeArray[enzId]);
             while (inFile >> nodeName) {
-                if (nodeName == ";") {
-                    tmpNodeName = "";
-                    break;
-                }
+                if (nodeName == "\n")  break;
+                else if (nodeName == "=") is_pro = true;
                 else {
                     // a newly seen node
                     if (_nodeName2Id.count(nodeName) == 0) {
                         int nodeId = _nodeNum;
                         _nodeArray.push_back(new Node(nodeName, 0, nodeId));
                         _nodeName2Id[nodeName] = nodeId;
-                        _nodeArray[nodeId]->addNet(edgeId);
-                        _nodeArray[nodeId]->incPinNum();
-                        _edgeArray[edgeId]->addNode(nodeId);
                         ++_nodeNum;
-                        tmpNodeName = nodeName;
                     }
+
                     // an existed node
+                    if (is_pro) {
+                        int nodeId = _nodeName2Id[nodeName];
+                        Node* node = _nodeArray[nodeId];
+                        _nodeArray[node]->addUpEdge(edgeId);
+                        _edgeArray[edgeId]->addPro(nodeId);
+                    }
                     else {
-                        if (nodeName != tmpNodeName) {
-                            assert(_nodeName2Id.count(nodeName) == 1);
-                            int nodeId = _nodeName2Id[nodeName];
-                            _nodeArray[nodeId]->addNet(edgeId);
-                            _nodeArray[nodeId]->incPinNum();
-                            _edgeArray[edgeId]->addNode(nodeId);
-                            tmpNodeName = nodeName;
-                        }
+                        int nodeId = _nodeName2Id[nodeName];
+                        Node* node = _nodeArray[nodeId];
+                        _nodeArray[node]->addDownEdge(edgeId);
+                        _edgeArray[edgeId]->addRea(nodeId);
                     }
                 }
             }
@@ -133,7 +115,7 @@ void Seacher::parseInput(fstream& inFile)
     return;
 }
 
-void Seacher::partition()
+void Seacher::search()
 {
 }
 

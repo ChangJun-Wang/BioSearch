@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     }
 
     Searcher* searcher = new Searcher(input);
-    searcher->partition();
+    // searcher->search();
     searcher->printSummary();
     searcher->writeResult(output);
 

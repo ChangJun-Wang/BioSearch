@@ -9,21 +9,28 @@ class Edge
 public:
     // Constructor and destructor
     Edge(const int& id) :
-        _id(id), _prev(NULL), _next(NULL) { }
+        _id(id) { }
     ~Edge() { }
 
     // Basic access methods
     int getId() const       { return _id; }
-    Edge* getPrev() const   { return _prev; }
-    Edge* getNext() const   { return _next; }
+    vector<int> getRea() const   { return _toRea; }
+    vector<int> getPro() const   { return _toPro; }
+    int         getEnz() const   { return _toEnz; }
 
     // Set functions
     void setId(const int& id) { _id = id; }
-    void setPrev(Edge* prev)  { _prev = prev; }
-    void setNext(Edge* next)  { _next = next; }
+    void setEnz(const int& enz)  { _toEnz = enz; }
+    void addRea(const int& rea)  { _toRea.push_back(rea); }
+    void addPro(const int& pro)  { _toPro.push_back(pro); }
 
 private:
-    int         _id;    // id of the node (indicating the cell)
-    Edge*       _prev;  // pointer to the previous node
-    Edge*       _next;  // pointer to the next node
+    int               _id;
+    bool              _visited;
+    vector<int>       _toRea;  
+    vector<int>       _toPro; 
+    int               _toEnz;
+    vector<int>       _label[5];
 };
+
+#endif  // EDGE_H

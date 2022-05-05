@@ -34,6 +34,7 @@ public:
     void parseInput(fstream& inFile);
     void partition();
     void updategain();
+    void search();
 
     // member functions about reporting
     void printSummary() const;
@@ -49,11 +50,11 @@ private:
     int                 _maxPinNum;     // Pmax for building bucket list
     double              _bFactor;       // the balance factor to be met
     Node*               _maxGainCell;   // pointer to max gain cell
-    vector<Net*>        _netArray;      // net array of the circuit
-    vector<Cell*>       _cellArray;     // cell array of the circuit
+    vector<Node*>       _nodeArray;      // net array of the circuit
+    vector<Edge*>       _edgeArray;     // cell array of the circuit
     map<int, Node*>     _bList[2];      // bucket list of partition A(0) and B(1)
-    map<string, int>    _netName2Id;    // mapping from net name to id
-    map<string, int>    _cellName2Id;   // mapping from cell name to id
+    map<string, int>    _nodeName2Id;    // mapping from net name to id
+    map<string, int>    _edgeName2Id;   // mapping from cell name to id
 
     int                 _accGain;       // accumulative gain
     int                 _maxAccGain;    // maximum accumulative gain
