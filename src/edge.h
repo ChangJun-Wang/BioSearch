@@ -25,12 +25,13 @@ public:
         if (flag == false) return false;
 
         for (int i = 0; i < added_node.size(); ++i) {
-            /* code */
+            bool flag_i = false;
+            for (int j = 0; j < _toRea.size(); ++j) {
+                if (_toRea[j] == added_node[i]) flag_i = true;
+            }
+            if (flag_i == false) return false;
         }
-        for rea in _toRea:
-            if rea not in added_node:
-                return false
-        return true
+        return true;
     }
 
     // Set functions
