@@ -17,6 +17,21 @@ public:
     vector<int> getRea() const   { return _toRea; }
     vector<int> getPro() const   { return _toPro; }
     int         getEnz() const   { return _toEnz; }
+    bool        activated(vector<int> added_node) {
+        bool flag = false;
+        for (int i = 0; i < added_node.size(); ++i) {
+            if (_toEnz == added_node[i]) flag = true;
+        }
+        if (flag == false) return false;
+
+        for (int i = 0; i < added_node.size(); ++i) {
+            /* code */
+        }
+        for rea in _toRea:
+            if rea not in added_node:
+                return false
+        return true
+    }
 
     // Set functions
     void setId(const int& id) { _id = id; }

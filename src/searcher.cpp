@@ -54,11 +54,12 @@ void Searcher::parseInput(fstream& inFile)
     // Set up whole graph
     while (inFile >> str) {
         string enzyme = "";
+        // cout << str << endl;
         if (str == "RN") {
             string nodeName = "";
-            inFile >> nodeName;
+            // inFile >> nodeName;
             while (inFile >> nodeName) {
-                if (nodeName == "\n") break;
+                if (nodeName == ";") break;
                 else {
                     // a newly seen node
                     if (_nodeName2Id.count(nodeName) == 0) {
@@ -83,7 +84,7 @@ void Searcher::parseInput(fstream& inFile)
             _nodeArray[enzId]->addCatEdge(edgeId);
             _edgeArray[edgeId]->setEnz(enzId);
             while (inFile >> nodeName) {
-                if (nodeName == "\n")  break;
+                if (nodeName == ";")  break;
                 else if (nodeName == "=") is_pro = true;
                 else {
                     // a newly seen node
@@ -97,13 +98,11 @@ void Searcher::parseInput(fstream& inFile)
                     // an existed node
                     if (is_pro) {
                         int nodeId = _nodeName2Id[nodeName];
-                        Node* node = _nodeArray[nodeId];
                         _nodeArray[nodeId]->addUpEdge(edgeId);
                         _edgeArray[edgeId]->addPro(nodeId);
                     }
                     else {
                         int nodeId = _nodeName2Id[nodeName];
-                        Node* node = _nodeArray[nodeId];
                         _nodeArray[nodeId]->addDownEdge(edgeId);
                         _edgeArray[edgeId]->addRea(nodeId);
                     }
@@ -157,10 +156,12 @@ void Searcher::writeResult(fstream& outFile)
 {
     stringstream buff;
     buff << _nodeNum;
-    outFile << "NodeNum = " << buff.str() << '\n';
+    outFile << "NodeNum = " << _nodeNum << '\n';
+    buff << _edgeNum;
+    outFile << "EdgeNum = " << _edgeNum << '\n';
 
     for (size_t i = 0, end_i = _edgeArray.size(); i < end_i; ++i) {
-        outFile << ";\n";
+        outFile << "\n";
         outFile << " Reaction " << _edgeArray[i]->getId() << ": ";
         vector<int> nodeList = _edgeArray[i]->getRea();
         for (size_t j = 0, end_j = nodeList.size(); j < end_j; ++j) {
