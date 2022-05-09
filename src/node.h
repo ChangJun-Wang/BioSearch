@@ -31,6 +31,7 @@ private:
     vector<int>     _downEdge;
     vector<int>     _catEdge;
     vector<int>     _label[5];
+    vector<Path*>   _pathArray;
 };
 
 #endif  // NODE_H
